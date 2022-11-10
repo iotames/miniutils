@@ -58,6 +58,19 @@ func TestJwt(t *testing.T) {
 	}
 }
 
+func TestStrfind(t *testing.T) {
+	strfind := NewStrfind("https://d.168.com/offer/356789.html")
+	strf := strfind.SetRegexp(`offer/(\d+)\.html`).DoFind()
+	offerCode := strf.GetOne(false)
+	if offerCode != "356789" {
+		t.Errorf("strfind error")
+	}
+	allstr := strf.GetOne(true)
+	if allstr != "offer/356789.html" {
+		t.Errorf("strfind error")
+	}
+}
+
 func TestLogger(t *testing.T) {
 	logger := GetLogger("")
 	logger.Debug("first log 11111")

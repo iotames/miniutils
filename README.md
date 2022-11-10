@@ -53,10 +53,21 @@ func main() {
 ## 日志记录
 
 ```
-	logger := GetLogger("")
+	logger := miniutils.GetLogger("")
 	logger.Debug("first log 11111")
 	logger.Info("second log 22222")
-	logger = NewLogger("runtime/mylogs")
+	logger = miniutils.NewLogger("runtime/mylogs")
 	logger.Debug("my logs 2333")
 	logger.CloseLogFile()
+```
+
+## 字符串提取工具
+
+```
+    strfind := miniutils.NewStrfind("https://d.168.com/offer/356789.html")
+	dofind := strfind.SetRegexp(`offer/(\d+)\.html`).DoFind()
+	offerCode := dofind.GetOne(false)
+	allstr := dofind.GetOne(true)
+	fmt.Println(offerCode) // "356789"
+	fmt.Println(allstr) // "offer/356789.html"
 ```
