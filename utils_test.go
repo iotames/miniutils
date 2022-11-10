@@ -57,3 +57,23 @@ func TestJwt(t *testing.T) {
 		t.Errorf("jwt.Parse error")
 	}
 }
+
+func TestLogger(t *testing.T) {
+	logger := GetLogger("")
+	logger.Debug("first log 11111")
+	logger.Info("second log 22222")
+	logger = NewLogger("runtime/loggg1")
+	logger.Debug("my logs 123")
+	logger.CloseLogFile()
+}
+
+func TestOsfile(t *testing.T) {
+	err := CopyFile("README.md", "README.md.copy")
+	if err != nil {
+		t.Errorf("CopyFile err:%v", err)
+	}
+	err = CopyDir("hello123", "hello321")
+	if err != nil {
+		t.Errorf("CopyDir err:%v", err)
+	}
+}

@@ -1,7 +1,7 @@
 ## Go实用小工具
 
-为提高开发效率封装了一些实用工具、函数，尽量不依赖第三方库。
-简单易用，拿来当Golang入门练习也是不错的选择。
+为提高开发效率封装了一些实用工具、函数集，不依赖第三方库。
+简单易用，拿来做Golang入门练习也不错。
 
 
 ## 示例
@@ -11,6 +11,8 @@
 `JWT`: https://jwt.io/
 
 ```
+package main
+
 import (
 	"fmt"
 	"log"
@@ -46,4 +48,15 @@ func main() {
 		fmt.Printf("JWT 签名错误")
 	}
 }
+```
+
+## 日志记录
+
+```
+	logger := GetLogger("")
+	logger.Debug("first log 11111")
+	logger.Info("second log 22222")
+	logger = NewLogger("runtime/mylogs")
+	logger.Debug("my logs 2333")
+	logger.CloseLogFile()
 ```
