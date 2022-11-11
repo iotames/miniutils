@@ -90,3 +90,26 @@ func TestOsfile(t *testing.T) {
 		t.Errorf("CopyDir err:%v", err)
 	}
 }
+
+func TestHttpRequest(t *testing.T) {
+	req := NewHttpRequest("https://httpbin.org/get")
+	req.SetRequestHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.81 Safari/533.33")
+	err := req.Do(nil)
+	if err != nil {
+		t.Errorf("request get do err %v", err)
+	}
+	log.Println(string(req.BodyBytes))
+
+	req = NewHttpRequest("https://httpbin.org/post")
+	req.SetRequestPostByString("hello=word&some=2333")
+	req.SetRequestHeader("xkey", "secretttkeyyy")
+	err = req.Do(nil)
+	if err != nil {
+		t.Errorf("request post do err %v", err)
+	}
+	log.Println(*req.Response)
+
+	req = NewHttpRequest("https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png")
+	req.SetRequestHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.81 Safari/533.33")
+	req.Download("runtime/baidu.png")
+}

@@ -50,7 +50,7 @@ func main() {
 }
 ```
 
-## 日志记录
+### 日志记录
 
 ```
 	logger := miniutils.GetLogger("")
@@ -61,7 +61,7 @@ func main() {
 	logger.CloseLogFile()
 ```
 
-## 字符串提取工具
+### 字符串提取工具
 
 ```
     strfind := miniutils.NewStrfind("https://d.168.com/offer/356789.html")
@@ -70,4 +70,35 @@ func main() {
 	allstr := dofind.GetOne(true)
 	fmt.Println(offerCode) // "356789"
 	fmt.Println(allstr) // "offer/356789.html"
+```
+
+### HTTP请求工具
+
+```
+	// 构建HTTP请求(默认GET方法)
+    req := miniutils.NewHttpRequest("https://httpbin.org/get")
+	// 设置HTTP请求头
+	req.SetRequestHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.81 Safari/533.33")
+	// 执行HTTP请求
+	err := req.Do(nil)
+	if err != nil {
+		log.Println(err)
+	}
+	// 打印响应内容消息体
+	log.Println(string(req.BodyBytes))
+
+	req = miniutils.NewHttpRequest("https://httpbin.org/post")
+	// 构建POST请求
+	req.SetRequestPostByString("hello=word&some=2333")
+	// 执行HTTP请求
+	req.SetRequestHeader("xkey", "secretttkeyyy")
+	err = req.Do(nil)
+	if err != nil {
+		t.Errorf("request post do err %v", err)
+	}
+	// 打印HTTP响应对象
+	log.Println(*req.Response)
+
+	// 下载图片到本地
+	miniutils.NewHttpRequest("https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png").Download("runtime/baidu.png")
 ```
