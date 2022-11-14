@@ -69,6 +69,10 @@ func TestStrfind(t *testing.T) {
 	if allstr != "offer/356789.html" {
 		t.Errorf("strfind error")
 	}
+	allF := strf.GetAll(false)
+	log.Println(allF)
+	allT := strf.GetAll(true)
+	log.Println(allT)
 }
 
 func TestLogger(t *testing.T) {
