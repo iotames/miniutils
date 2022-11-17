@@ -18,29 +18,31 @@ func TestJwt(t *testing.T) {
 		t.Errorf("jwt.Create error: %v", err)
 	}
 	log.Println("create JWT:", tokenStr)
+	log.Printf("jwt info:%+v(%T)", jwtInfo, jwtInfo["id"]) // int
 
 	// 解码JWT
 	info, err := NewJwt("").Decode(tokenStr)
 	if err != nil {
 		t.Errorf("jwt.Decode error: %v", err)
 	}
-	log.Println("jwt Decode:", info)
+	log.Printf("jwt Decode:%+v(%T)", info, info["id"]) // json.Number
+	// 核对数据正确性
+	// if !reflect.DeepEqual(jwtInfo, info) {
+	if fmt.Sprintf("%v", jwtInfo) != fmt.Sprintf("%v", info) {
+		t.Errorf("jwt.Decode error")
+	}
 
-	// 解码并验签，验证有效期
+	// 解码JWT并验签，验证有效期
 	claims, err := jwt.Parse(tokenStr)
 	if err != nil {
 		t.Errorf("jwt.Parse error: %v", err)
 	}
-	log.Println("jwt Parse:", claims)
-
+	log.Printf("jwt Parse:%+v(%T)", claims, claims["id"]) // json.Number
 	// 核对数据正确性
-	if fmt.Sprintf("%v", jwtInfo) != fmt.Sprintf("%v", info) {
-		t.Errorf("jwt.Decode error")
-	}
+	// if !reflect.DeepEqual(jwtInfo, claims) {
 	if fmt.Sprintf("%v", jwtInfo) != fmt.Sprintf("%v", claims) {
 		t.Errorf("jwt.Parse error")
 	}
-	log.Println("jwt info:", jwtInfo)
 
 	// 构建验签失败的JWT
 	_, err = jwt.Parse(tokenStr + "sign error")
@@ -116,4 +118,40 @@ func TestHttpRequest(t *testing.T) {
 	req = NewHttpRequest("https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png")
 	req.SetRequestHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.81 Safari/533.33")
 	req.Download("runtime/baidu.png")
+}
+
+func TestArray(t *testing.T) {
+	a1 := []int64{12, 16, 33, 55}
+	b1 := []string{"aa", "bb", "cc"}
+	if GetIndexOf(33, a1) != 2 {
+		t.Errorf("GetIndexOf Error")
+	}
+	if GetIndexOf[int64](999, a1) != -1 {
+		t.Errorf("GetIndexOf Error")
+	}
+	if GetIndexOf("bb", b1) != 1 {
+		t.Errorf("GetIndexOf Error")
+	}
+	if GetIndexOf[string]("hello", b1) != -1 {
+		t.Errorf("GetIndexOf Error")
+	}
+}
+
+func TestNumber(t *testing.T) {
+	if StrToInt("15,633,510", nil) != 15633510 {
+		t.Errorf("StrToInt error")
+	}
+	if StrToInt("$ 156,335,10", []string{"$", ","}) != 15633510 {
+		t.Errorf("StrToInt error")
+	}
+	price := GetPriceByText("$ 156,335,10.37")
+	fmt.Printf("%.2f\n", price)
+	if price != 15633510.37 {
+		t.Errorf("StrToInt error")
+	}
+	price = GetPriceByText("£156,335,10.37")
+	fmt.Printf("%.2f\n", price)
+	if price != 15633510.37 {
+		t.Errorf("StrToInt error")
+	}
 }

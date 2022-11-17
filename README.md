@@ -4,11 +4,44 @@
 简单易用，拿来做Golang入门练习也不错。
 
 
+## 快速开始
+
+```
+# 创建本地项目 myproject
+go mod init myproject
+# 新建入口文件 main.go
+vim main.go
+```
+
+入口文件 `main.go`
+
+```
+package main
+
+import (
+	"fmt"
+	"github.com/iotames/miniutils"
+)
+func main() {
+    strfind := miniutils.NewStrfind("https://d.168.com/offer/356789.html")
+	dofind := strfind.SetRegexp(`offer/(\d+)\.html`).DoFind()
+	fmt.Println(dofind.GetOne(false)) // "356789"
+	fmt.Println(dofind.GetOne(true)) // "offer/356789.html"
+}
+```
+
+```
+# 更新依赖
+go mod tidy
+# 运行
+go run .
+```
+
 ## 示例
 
 ### JWT 工具
 
-`JWT`: https://jwt.io/
+`JWT`: 全称JSON Web Token，互联网API通讯接口身份验证的行业标准。通过JWT字符串的解密和验签，进行用户身份认证。参见: https://jwt.io/
 
 ```
 package main
@@ -66,10 +99,8 @@ func main() {
 ```
     strfind := miniutils.NewStrfind("https://d.168.com/offer/356789.html")
 	dofind := strfind.SetRegexp(`offer/(\d+)\.html`).DoFind()
-	offerCode := dofind.GetOne(false)
-	allstr := dofind.GetOne(true)
-	fmt.Println(offerCode) // "356789"
-	fmt.Println(allstr) // "offer/356789.html"
+	fmt.Println(dofind.GetOne(false)) // "356789"
+	fmt.Println(dofind.GetOne(true)) // "offer/356789.html"
 ```
 
 ### HTTP请求工具
