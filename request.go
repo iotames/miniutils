@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
+	neturl "net/url"
 	"os"
 	"strings"
 	"time"
@@ -162,8 +162,8 @@ func (h *HttpRequest) SetRequestHeader(key string, value string) error {
 // 设置HTTP代理。 例: SetProxy("http://127.0.0.1:1080")
 func (h *HttpRequest) SetProxy(proxyUrl string) {
 	fmt.Println("------SetProxy------", proxyUrl)
-	h.Client.Transport.(*http.Transport).Proxy = func(_ *http.Request) (*url.URL, error) {
-		return url.Parse(proxyUrl)
+	h.Client.Transport.(*http.Transport).Proxy = func(_ *http.Request) (*neturl.URL, error) {
+		return neturl.Parse(proxyUrl)
 	}
 }
 

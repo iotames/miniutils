@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"github.com/iotames/miniutils"
 )
+
 func main() {
     strfind := miniutils.NewStrfind("https://d.168.com/offer/356789.html")
 	dofind := strfind.SetRegexp(`offer/(\d+)\.html`).DoFind()
@@ -59,6 +60,7 @@ import (
 	"time"
 	"github.com/iotames/miniutils"
 )
+
 func main() {
 	secret := miniutils.GetRandString(32) // 设置JWT签名密钥
 	jwt := miniutils.NewJwt(secret) // 初始化JWT小工具
@@ -134,7 +136,7 @@ func main() {
 	req.SetRequestHeader("xkey", "secretttkeyyy")
 	err = req.Do(nil)
 	if err != nil {
-		t.Errorf("request post do err %v", err)
+		log.Printf("request post do err (%v) \n", err)
 	}
 	// 打印HTTP响应对象
 	log.Println(*req.Response)
