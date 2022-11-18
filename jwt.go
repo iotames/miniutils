@@ -13,6 +13,7 @@ var (
 	ErrTokenFormat  = errors.New("token is not a JWT")
 	ErrTokenExpired = errors.New("token is expired")
 	ErrTokenSign    = errors.New("token sign error")
+	ErrTokenExp     = errors.New("token lost field: exp")
 )
 
 func GetJwtBySecret(keyBytes []byte, bodyInfo map[string]interface{}) (string, error) {
@@ -72,74 +73,65 @@ func (j *JsonWebToken) Create(claims map[string]interface{}, expiresin time.Dura
 	return
 }
 
+// JsonDecodeUseNumber 解析带数字的JSON
 func JsonDecodeUseNumber(infoBytes []byte, result interface{}) error {
+	// err = json.Unmarshal(infoBytes, result) 时间戳 int64 转json会变 float64
 	// 未设置UseNumber长整型会丢失精度
 	decoder := json.NewDecoder(bytes.NewReader(infoBytes))
 	decoder.UseNumber()
+	// fmt.Printf("----JsonDecodeUseNumber--(%p)-(%p)-----\n", result, &result)
 	return decoder.Decode(result)
 }
 
-// Decode reads the JsonWebToken string. Return the JWT decoded data.
-func (j *JsonWebToken) Decode(jwtStr string) (segInfo map[string]interface{}, err error) {
-	segTokens := strings.Split(jwtStr, ".")
-	if len(segTokens) != 3 {
+// Decode 解码JWT字符串。reads the JsonWebToken string. Return the JWT decoded data.
+func (j *JsonWebToken) Decode(jwtStr string) (result map[string]interface{}, err error) {
+	tokenSplit := strings.Split(jwtStr, ".")
+	if len(tokenSplit) != 3 {
 		err = ErrTokenFormat
 		return
 	}
 	var infoBytes []byte
-	infoBytes, err = Base64UrlDecode(segTokens[1])
+	infoBytes, err = Base64UrlDecode(tokenSplit[1])
 	if err != nil {
 		err = fmt.Errorf("Base64UrlDecode error: %w", err)
 		return
 	}
-	err = JsonDecodeUseNumber(infoBytes, &segInfo)
+	// fmt.Printf("----Decode1--(%p)-(%p)--\n", result, &result)
+	// result = make(map[string]interface{})
+	// fmt.Printf("----Decode2---(%p)-(%p)--\n", result, &result)
+	err = JsonDecodeUseNumber(infoBytes, &result) // &result 传递非空指针. 不加取址符&导致空指针错误: json: Unmarshal(non-pointer map[string]interface {})
 	if err != nil {
 		err = fmt.Errorf("JsonDecodeUseNumber error: %w", err)
 	}
 	return
 }
 
-// Decode reads the JsonWebToken string. Check the JWT decoded data and return.
-func (j *JsonWebToken) Parse(tokenStr string) (result map[string]interface{}, err error) {
-	tokenSplit := strings.Split(tokenStr, `.`)
-	if len(tokenSplit) != 3 {
-		err = ErrTokenFormat
-		return
-	}
-
-	bodyInfoBytes, err := Base64UrlDecode(tokenSplit[1])
+// Parse 解码JWT字符串，并验证其有效性。reads the JsonWebToken string. Check the JWT decoded data and return.
+func (j *JsonWebToken) Parse(jwtStr string) (result map[string]interface{}, err error) {
+	result, err = j.Decode(jwtStr)
 	if err != nil {
-		err = fmt.Errorf("Base64UrlDecode error: %w", err)
 		return
 	}
-	bodyInfo := map[string]interface{}{}
-	// err = json.Unmarshal(bodyInfoBytes, &bodyInfo) 时间戳 int64 转json会变 float64
-	err = JsonDecodeUseNumber(bodyInfoBytes, &bodyInfo)
-	if err != nil {
-		err = fmt.Errorf("JsonDecodeUseNumber error: %w", err)
-		return
-	}
-
-	exp, ok := bodyInfo["exp"]
+	exp, ok := result["exp"]
 	if ok {
 		expiredAt, _ := exp.(json.Number).Int64()
 		if expiredAt < time.Now().Unix() {
 			err = ErrTokenExpired
 			return
 		}
+	} else {
+		err = ErrTokenExp
+		return
 	}
 	var okToken string
-	okToken, err = GetJwtBySecret([]byte(j.secret), bodyInfo)
+	okToken, err = GetJwtBySecret([]byte(j.secret), result)
 	if err != nil {
 		err = fmt.Errorf("GetJwtBySecret error: %w", err)
 		return
 	}
-
-	if okToken != tokenStr {
+	if okToken != jwtStr {
 		err = ErrTokenSign
 		return
 	}
-	result = bodyInfo
-	err = nil
 	return
 }
