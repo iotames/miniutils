@@ -87,11 +87,11 @@ func TestLogger(t *testing.T) {
 }
 
 func TestOsfile(t *testing.T) {
-	err := CopyFile("README.md", "README.md.copy")
+	err := CopyFile("README.md", "runtime/README.md.copy")
 	if err != nil {
 		t.Errorf("CopyFile err:%v", err)
 	}
-	err = CopyDir("hello123", "hello321")
+	err = CopyDir("runtime/logs", "runtime/logscopy")
 	if err != nil {
 		t.Errorf("CopyDir err:%v", err)
 	}
@@ -154,4 +154,12 @@ func TestNumber(t *testing.T) {
 	if price != 15633510.37 {
 		t.Errorf("StrToInt error")
 	}
+}
+
+func TestOsapi(t *testing.T) {
+	result, err := RunCmd("go", "version")
+	if err != nil {
+		t.Errorf("RunCmd error: %v", err)
+	}
+	log.Println(string(result))
 }

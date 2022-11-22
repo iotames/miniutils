@@ -1,14 +1,13 @@
-## Go实用小工具
+<div align="center">
+   <span style="font-size:100px">🧰</span>
+  <br><a href="https://github.com/iotames/miniutils">Github</a> | <a href="https://gitee.com/catmes/miniutils">Gitee</a>
+  <br>入门级，简单，易用的Go小工具<br>助你成功转职Golang工程师！
+</div>
 
-为提高开发效率封装了一些实用工具、函数集，不依赖第三方库。
-简单易用，拿来做Golang入门练习也不错。
 
+## 简介
 
-同步仓库:
-
-> Github: https://github.com/iotames/miniutils
-
-> Gitee: https://gitee.com/catmes/miniutils
+Go实用小工具: 封装了高效开发的常用工具、函数集，不依赖第三方库，简单易用。
 
 
 ## 快速开始
@@ -46,6 +45,8 @@ go run .
 ```
 
 ## 示例
+
+[测试样例](/utils_test.go)
 
 ### JWT 工具
 

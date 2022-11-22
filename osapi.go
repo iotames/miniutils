@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"regexp"
 	"runtime"
@@ -99,4 +100,19 @@ func KillPid(pid string) error {
 		return fmt.Errorf("not support platform: %s", runtime.GOOS)
 	}
 	return cmd.Run()
+}
+
+// RunCmd 直接执行操作系统中的命令 RunCmd("go", "version")
+func RunCmd(name string, arg ...string) ([]byte, error) {
+	var bf bytes.Buffer
+	cmd := exec.Command(name, arg...)
+	// cmd.Dir = "" // 设置在哪个目录执行命令
+	// cmd.Stdout = os.Stdout
+	// cmd.Env = os.Environ()
+	cmd.Stdout = &bf
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	result := bf.Bytes()
+	// os.Stdout.Write(result)
+	return result, err
 }
