@@ -1,6 +1,7 @@
 package miniutils
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/fs"
@@ -120,4 +121,48 @@ func Mkdir(path string) error {
 		return err
 	}
 	return nil
+}
+
+// GetFileInfo 获取文件信息
+func GetFileInfo(path string) (file fs.FileInfo, err error) {
+	var f *os.File
+	f, err = os.Open(path)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	file, err = f.Stat()
+	return
+}
+
+// ParseJsonFile 解析json文件内容
+// json1 := map[string]interface{}{}
+// ParseJsonFile("runtime/testjson.json", &json1, false)
+func ParseJsonFile(path string, v interface{}, useNumber bool) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	decoder := json.NewDecoder(f)
+	if useNumber {
+		decoder.UseNumber()
+	}
+	return decoder.Decode(v)
+}
+
+// UpdateJsonFile 更新json文件内容
+// testJson := map[string]interface{}{"name": "Tom", "age": 19, "height": 167.5}
+// UpdateJsonFile("runtime/testjson.json", testJson)
+func UpdateJsonFile(path string, v interface{}) error {
+	// if IsPathExists(path) {
+	// 	os.Remove(path)
+	// }
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	encoder := json.NewEncoder(f)
+	return encoder.Encode(v)
 }

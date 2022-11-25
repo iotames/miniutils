@@ -95,6 +95,16 @@ func TestOsfile(t *testing.T) {
 	if err != nil {
 		t.Errorf("CopyDir err:%v", err)
 	}
+	finfo, err := GetFileInfo("README.md")
+	if err != nil {
+		t.Errorf("GetFileInfo err:%v", err)
+	}
+	log.Printf("[%+v]--time:%+v", finfo, finfo.ModTime())
+	testJson := map[string]interface{}{"name": "Tom", "age": 19, "height": 168.5}
+	UpdateJsonFile("runtime/testjson.json", testJson)
+	json1 := map[string]interface{}{}
+	ParseJsonFile("runtime/testjson.json", &json1, false)
+	log.Println(json1)
 }
 
 func TestHttpRequest(t *testing.T) {
