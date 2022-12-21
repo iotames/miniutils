@@ -31,11 +31,14 @@ func (s *Strfind) DoFind() *Strfind {
 
 // GetOne 获取检索结果。例: GetOne(true) -> "begin123end", GetOne(false) -> "123"
 func (s *Strfind) GetOne(matchFull bool) string {
+	if len(s.matchList) == 0 {
+		return ""
+	}
 	if matchFull {
 		return s.matchList[0][0]
 	}
 
-	if len(s.matchList) > 0 && len(s.matchList[0]) > 1 {
+	if len(s.matchList[0]) > 1 {
 		return s.matchList[0][1]
 	}
 	return ""
