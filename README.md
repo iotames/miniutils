@@ -7,7 +7,10 @@
 
 ## 简介
 
-Go实用小工具: 封装了高效开发的常用工具、函数集，不依赖第三方库，简单易用。
+[![GoDoc](https://badgen.net/badge/Go/referenct)](https://pkg.go.dev/github.com/iotames/miniutils)
+[![License](https://badgen.net/badge/License/MIT/green)](https://github.com/iotames/miniutils/blob/main/LICENSE)
+
+Go实用小工具: 封装了高效开发的常用工具、函数集，简单易用。
 
 
 ## 快速开始
