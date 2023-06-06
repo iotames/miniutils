@@ -50,6 +50,7 @@ func toJwtString(headerInfo, bodyInfo map[string]interface{}) (string, error) {
 
 type JsonWebToken struct {
 	secret, TokenString string
+	claims              map[string]interface{}
 }
 
 // NewJwt init JsonWebToken by secret string
@@ -70,6 +71,7 @@ func (j *JsonWebToken) Create(claims map[string]interface{}, expiresin time.Dura
 		return
 	}
 	j.TokenString = token
+	j.claims = claims
 	return
 }
 
@@ -103,14 +105,19 @@ func (j *JsonWebToken) Decode(jwtStr string) (result map[string]interface{}, err
 	if err != nil {
 		err = fmt.Errorf("JsonDecodeUseNumber error: %w", err)
 	}
+	j.claims = result
 	return
 }
 
 // Parse 解码JWT字符串，并验证其有效性。reads the JsonWebToken string. Check the JWT decoded data and return.
 func (j *JsonWebToken) Parse(jwtStr string) (result map[string]interface{}, err error) {
-	result, err = j.Decode(jwtStr)
-	if err != nil {
-		return
+	if j.claims != nil {
+		result = j.claims
+	} else {
+		result, err = j.Decode(jwtStr)
+		if err != nil {
+			return
+		}
 	}
 	exp, ok := result["exp"]
 	if ok {

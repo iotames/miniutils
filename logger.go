@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -30,6 +31,8 @@ type singleLogger struct {
 }
 
 type Logger struct {
+	lock      *sync.Mutex
+	logLevel  LogLevel
 	logsDir   string
 	loggerMap map[LogLevel]singleLogger
 }
@@ -40,7 +43,7 @@ func getInitLoggerMap() map[LogLevel]singleLogger {
 
 // TODO TO BE a global unique instance
 func NewLogger(logsDir string) *Logger {
-	return &Logger{logsDir: logsDir, loggerMap: getInitLoggerMap()}
+	return &Logger{lock: &sync.Mutex{}, logsDir: logsDir, loggerMap: getInitLoggerMap()}
 }
 
 var slogger *Logger
@@ -54,7 +57,14 @@ func GetLogger(dirpath string) *Logger {
 	return slogger
 }
 
+func (l *Logger) SetLogLevel(level LogLevel) *Logger {
+	l.logLevel = level
+	return l
+}
+
 func (l *Logger) getLogger(level LogLevel) *log.Logger {
+	l.lock.Lock()
+	defer l.lock.Lock()
 	lg, ok := l.loggerMap[level]
 	var logFile *os.File
 	dateExpired := false
@@ -62,17 +72,17 @@ func (l *Logger) getLogger(level LogLevel) *log.Logger {
 		filename := time.Now().Format(fmt.Sprintf("20060102_%s.log", levelMap[level]))
 		logFile = l.loggerMap[level].logFile
 		if logFile != nil {
-			info, _ := logFile.Stat()
+			info, err := logFile.Stat()
 			if info != nil {
 				if info.Name() != filename {
 					logFile.Close()
 					dateExpired = true
 				}
 			} else {
-				log.Println("---getLogger--info, _ := logFile.Stat()--- info == nil-------")
+				log.Println("---getLogger--[logFile.Stat() == nil]-----err=", err)
 			}
 		} else {
-			log.Println("---getLogger--logFile = l.loggerMap[level].logFile   --- == nil-------")
+			log.Println("---getLogger--[l.loggerMap[level].logFile == nil]---")
 		}
 	}
 	if !ok || dateExpired {
@@ -105,35 +115,89 @@ func createPath(dirpath string, level LogLevel) *os.File {
 	return logfile
 }
 
-func (l *Logger) print(content ...interface{}) *Logger {
-	log.Println(content...)
+func (l *Logger) Debugf(format string, v ...any) (isPrint bool) {
+	l.getLogger(LOG_LEVEL_DEBUG).Printf(format, v...)
+	if l.logLevel >= LOG_LEVEL_DEBUG {
+		log.Printf(format, v...)
+		return true
+	}
+	return false
+}
+
+func (l *Logger) Infof(format string, v ...any) (isPrint bool) {
+	p := l.Debugf(format, v...)
+	l.getLogger(LOG_LEVEL_INFO).Printf(format, v...)
+	if !p && l.logLevel >= LOG_LEVEL_INFO {
+		log.Printf(format, v...)
+		return true
+	}
+	return false
+}
+func (l *Logger) Warnf(format string, v ...any) (isPrint bool) {
+	p := l.Infof(format, v...)
+	l.getLogger(LOG_LEVEL_WARN).Printf(format, v...)
+	if !p && l.logLevel >= LOG_LEVEL_WARN {
+		log.Printf(format, v...)
+		return true
+	}
+	return false
+}
+func (l *Logger) Errorf(format string, v ...any) (isPrint bool) {
+	p := l.Warnf(format, v...)
+	l.getLogger(LOG_LEVEL_ERROR).Printf(format, v...)
+	if !p && l.logLevel >= LOG_LEVEL_ERROR {
+		log.Printf(format, v...)
+		return true
+	}
+	return false
+}
+
+func (l *Logger) Debug(content ...interface{}) (isPrint bool) {
 	l.getLogger(LOG_LEVEL_DEBUG).Println(content...)
-	return l
-}
-func (l *Logger) Debug(conent ...interface{}) {
-	l.print(conent...)
+	if l.logLevel >= LOG_LEVEL_DEBUG {
+		log.Println(content...)
+		return true
+	}
+	return false
 }
 
-func (l *Logger) Info(content ...interface{}) {
-	l.Debug(content...)
+func (l *Logger) Info(content ...interface{}) (isPrint bool) {
+	p := l.Debug(content...)
 	l.getLogger(LOG_LEVEL_INFO).Println(content...)
+	if !p && l.logLevel >= LOG_LEVEL_INFO {
+		log.Println(content...)
+		return true
+	}
+	return false
 }
 
-func (l *Logger) Warn(content ...interface{}) {
-	l.Info(content...)
+func (l *Logger) Warn(content ...interface{}) (isPrint bool) {
+	p := l.Info(content...)
 	l.getLogger(LOG_LEVEL_WARN).Println(content...)
+	if !p && l.logLevel >= LOG_LEVEL_WARN {
+		log.Println(content...)
+		return true
+	}
+	return false
 }
 
-func (l *Logger) Error(content ...interface{}) {
-	l.Warn(content...)
+func (l *Logger) Error(content ...interface{}) (isPrint bool) {
+	p := l.Warn(content...)
 	l.getLogger(LOG_LEVEL_ERROR).Println(content...)
+	if !p && l.logLevel >= LOG_LEVEL_ERROR {
+		log.Println(content...)
+		return true
+	}
+	return false
 }
 
 func (l *Logger) CloseLogFile() {
+	l.lock.Lock()
 	for _, lg := range l.loggerMap {
 		if lg.logFile != nil && lg.isopened {
 			lg.logFile.Close()
 			lg.isopened = false
 		}
 	}
+	l.lock.Unlock()
 }
