@@ -64,7 +64,7 @@ func (l *Logger) SetLogLevel(level LogLevel) *Logger {
 
 func (l *Logger) getLogger(level LogLevel) *log.Logger {
 	l.lock.Lock()
-	defer l.lock.Lock()
+	defer l.lock.Unlock()
 	lg, ok := l.loggerMap[level]
 	var logFile *os.File
 	dateExpired := false
