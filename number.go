@@ -30,6 +30,9 @@ func StrToInt(intstr string, prune []string) int64 {
 // GetPriceByText("£156,335,10.37") -> 15633510.37
 func GetPriceByText(priceText string) float64 {
 	var price float64 = 0
+	if strings.TrimSpace(priceText) == "" {
+		return price
+	}
 	priceSplit := strings.Split(priceText, "$")
 	if len(priceSplit) > 1 {
 		price, _ = strconv.ParseFloat(strings.TrimSpace(strings.ReplaceAll(priceSplit[1], ",", "")), 64)
@@ -38,7 +41,7 @@ func GetPriceByText(priceText string) float64 {
 		priceSplit = strings.Split(priceText, "€")
 		if len(priceSplit) > 0 {
 			priceStr := strings.TrimSpace(priceSplit[0])
-			if priceStr == "" {
+			if priceStr == "" && len(priceSplit) > 1 {
 				priceStr = strings.TrimSpace(priceSplit[1])
 			}
 			if priceStr != "" {
@@ -56,7 +59,7 @@ func GetPriceByText(priceText string) float64 {
 	}
 	if price == 0 {
 		priceSplit = strings.Split(priceText, `DKK`)
-		log.Println("----------------price      DKK", priceSplit)
+		log.Println("-----Check---price----DKK", priceSplit)
 		if len(priceSplit) > 0 {
 			price1 := strings.ReplaceAll(priceSplit[0], ".", "")
 			price2 := strings.ReplaceAll(price1, `,`, `.`)
