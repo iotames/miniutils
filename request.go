@@ -13,12 +13,15 @@ import (
 	"time"
 )
 
+// HttpRequest
+// TODO 把 Request 改为私有属性
 type HttpRequest struct {
 	Client      *http.Client
 	Request     *http.Request
 	OnRequest   func(r *http.Request)
 	Response    *http.Response
 	BodyBytes   []byte
+	hheader     http.Header
 	Url         string
 	RetryTimes  uint8
 	postPayload string
@@ -39,6 +42,10 @@ func (h *HttpRequest) Do(callback func(h *HttpRequest)) error {
 	err := h.checkRequest()
 	if err != nil {
 		return err
+	}
+	if h.hheader != nil {
+		// TODO 把 Request 改为私有属性
+		h.Request.Header = h.hheader
 	}
 	if h.OnRequest != nil {
 		h.OnRequest(h.Request)
@@ -150,12 +157,20 @@ func (h *HttpRequest) checkRequest() error {
 
 // SetRequestHeader 设置HTTP请求头
 func (h *HttpRequest) SetRequestHeader(key string, value string) error {
-	err := h.checkRequest()
-	if err != nil {
-		log.Fatal(err)
-		return err
+	if h.hheader == nil {
+		h.hheader = make(http.Header)
 	}
-	h.Request.Header.Set(key, value)
+	h.hheader.Set(key, value)
+	// h.Request.Header.Set(key, value)
+	return nil
+}
+
+// SetRequestHeader 添加HTTP请求头
+func (h *HttpRequest) AddRequestHeader(key string, value string) error {
+	if h.hheader == nil {
+		h.hheader = make(http.Header)
+	}
+	h.hheader.Add(key, value)
 	return nil
 }
 
