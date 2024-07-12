@@ -34,7 +34,7 @@ func GetPidByPort(portNumber int) int {
 		// fmt.Printf("---resStr---%s---resStr---", resStr)
 		// 以换行符结尾`TCP    127.0.0.1:9222         0.0.0.0:0              LISTENING       9700
 		//`
-		cmdStr = fmt.Sprintf("netstat -ano -p tcp | findstr %d", portNumber)
+		cmdStr = fmt.Sprintf("netstat -ano -p tcp | findstr :%d", portNumber)
 		cmd = exec.Command("cmd", "/c", cmdStr)
 	}
 
