@@ -51,10 +51,11 @@ func GetUrl(url, base string) string {
 // the arg url startwith http, //, / ; return like: "www.baidu.com", "baidu.com", ""
 func GetDomainByUrl(url string) string {
 	urlS := strings.Split(url, "/")
-	if strings.Index(url, "http") == 0 || strings.Index(url, "//") == 0 {
+
+	if (strings.HasPrefix(url, "http") || strings.HasPrefix(url, "//")) && len(urlS) > 2 {
 		return urlS[2]
 	}
-	if strings.Index(url, "/") == 0 {
+	if strings.HasPrefix(url, "/") && len(urlS) > 1 {
 		return urlS[1]
 	}
 	return ""
